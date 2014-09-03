@@ -22,12 +22,12 @@
 
       var height = canvas.height;
       var width = canvas.width;
-      var delay = 500;
-      var angleLimits = [40, 140];
-      var numberOfTrees = 3
+      var delay = 0;
+      var angleLimits = [30, 150];
+      var numberOfTrees = 1;
 
       for (var i = 1; i <= numberOfTrees; i++) {
-        drawTree([width * (i/(numberOfTrees+1)), height], 16, rand(80, 150), 1, 1, randomColor(), 0);
+        drawTree([width * (i/(numberOfTrees+1)), height], 16, rand(80, 150), 1, 1, '#333', 0);
       }
 
       function drawTree(startPoint, size, branchLength, branches, depth, color, shiftAngle) {
@@ -35,8 +35,10 @@
           return;
         }
         
+        
         for (var i=1; i <= branches; i++) {
-          
+          length = rand(0.8, 1.2) * branchLength;
+          console.log("generation = " + depth, "length = "+ branchLength);
           if (depth == 1) {
             endPoint = [startPoint[0], startPoint[1] - branchLength];
             lastAngle = 90;
@@ -45,7 +47,7 @@
             console.log("angeRange before shift = " + curAngleRange);
             curAngleRange[0] += shiftAngle;
             curAngleRange[1] += shiftAngle;
-            endPoint = calcNewEndPoint(startPoint, branchLength, curAngleRange);
+            endPoint = calcNewEndPoint(startPoint, length, curAngleRange);
             lastAngle = endPoint[2];
           }
           
@@ -65,8 +67,8 @@
             delay, 
             endPoint, 
             size / 2,
-            (branchLength * rand(0.66, 1)),
-            rand(3, 5),
+            branchLength * 0.9,
+            rand(3,5),
             depth,
             color,
             (lastAngle - 90) % 360
@@ -98,8 +100,8 @@
       function calcAngleRange(limits, parts, curPart)
       {
         var partLength = (limits[1] - limits[0]) / parts;
-        var lower = limits[0] + (curPart * partLength);
-        var upper = lower + partLength;
+        var lower = limits[0] + (curPart * partLength) * rand(0.75, 1.25);
+        var upper = lower +  partLength * rand(0.75, 1.25);
         return [lower, upper]; 
       }
     </script>
