@@ -1,6 +1,9 @@
 <!DOCTYPE HTML>
 <html>
   <head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
     <style>
       body {
         margin: 0px;
@@ -8,43 +11,72 @@
       }
       canvas {
         margin: auto;
-        position: absolute;
-        top: 0; left: 0; bottom: 0; right: 0;
+        top: 0; left: 0; right: 0;
         border-bottom: solid grey 1px;
       }
     </style>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      $(function() {
+        $("#slider-number-of-trees").slider({
+          range: "min",
+          value: 2,
+          min: 1,
+          max: 20,
+          slide: function( event, ui ) {
+            numberOfTrees = ui.value;
+            init(numberOfTrees);
+          }
+        });
+      });
+    });
+    </script>
   </head>
   <body>
-    <canvas id="canvas" width="1200" height="600"></canvas>
+    <div>
+    <canvas id="canvas"></canvas>
+    </div>
+    <p>
+      <label for="number-of-trees">Number of trees:</label>
+      <input type="text" id="number-of-trees" style="border:0; color:#f6931f; font-weight:bold;">
+    </p>
+    <div id="slider-number-of-trees"></div>
+
     <script type="text/javascript">
       var canvas = document.getElementById('canvas');
       var context = canvas.getContext('2d');
 
-      var height = canvas.height;
-      var width = canvas.width;
-      var delay = 0;
-      var angleLimits = [30, 150];
-      var numberOfTrees = 1;
+      var height = $(window).height() * 0.75;
+      var width = $(window).width();
+      canvas.width = width;
+      canvas.height = height;
 
-      for (var i = 1; i <= numberOfTrees; i++) {
-        drawTree([width * (i/(numberOfTrees+1)), height], 16, rand(80, 150), 1, 1, '#333', 0);
+      var angleLimits = [30, 150];
+      
+      init(2, 50);
+
+      function init(numberOfTrees, delay) {
+        context.clearRect(0,0,canvas.width,canvas.height)
+        for (var i = 1; i <= numberOfTrees; i++) {
+          trunkLength = height/10 * rand(0.8, 1.2);
+          drawTree(delay, [width * (i/(numberOfTrees+1)), height], 16, trunkLength, 1, 1, '#333', 0);
+        }
       }
 
-      function drawTree(startPoint, size, branchLength, branches, depth, color, shiftAngle) {
+      function drawTree(delay, startPoint, size, branchLength, branches, depth, color, shiftAngle) {
         if(size < 0.5) {
           return;
         }
         
-        
         for (var i=1; i <= branches; i++) {
           length = rand(0.8, 1.2) * branchLength;
-          console.log("generation = " + depth, "length = "+ branchLength);
+          //console.log("generation = " + depth, "length = "+ branchLength);
           if (depth == 1) {
             endPoint = [startPoint[0], startPoint[1] - branchLength];
             lastAngle = 90;
           } else {
             curAngleRange = calcAngleRange(angleLimits, branches, i-1);
-            console.log("angeRange before shift = " + curAngleRange);
+            //console.log("angeRange before shift = " + curAngleRange);
             curAngleRange[0] += shiftAngle;
             curAngleRange[1] += shiftAngle;
             endPoint = calcNewEndPoint(startPoint, length, curAngleRange);
@@ -61,10 +93,11 @@
           context.stroke();
           
           window.setTimeout(
-            function(endPoint, size, branchLength, n, depth, color, shiftAngle){
-              drawTree(endPoint, size, branchLength, n, depth + 1, color, shiftAngle);
+            function(delay, endPoint, size, branchLength, n, depth, color, shiftAngle){
+              drawTree(delay, endPoint, size, branchLength, n, depth + 1, color, shiftAngle);
             },
             delay, 
+            delay,
             endPoint, 
             size / 2,
             branchLength * 0.9,
