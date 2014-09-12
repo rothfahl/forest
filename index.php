@@ -25,7 +25,7 @@
           max: 20,
           slide: function( event, ui ) {
             numberOfTrees = ui.value;
-            init(numberOfTrees);
+            init({'numberOfTrees' : numberOfTrees});
           }
         });
       });
@@ -53,13 +53,25 @@
 
       var angleLimits = [30, 150];
       
-      init(2, 50);
+      var defaults = {
+        'numberOfTrees' : 3,
+        'angleLimits' : [30, 150],
+        'delay' : 1
+      };
 
-      function init(numberOfTrees, delay) {
+      init({});
+
+      function init(options) {
+        params = {};
+        for (var prop in defaults) {
+            if (prop in options) { params[prop] = options[prop]; }
+            else { params[prop] = defaults[prop]; }
+        }
+
         context.clearRect(0,0,canvas.width,canvas.height)
-        for (var i = 1; i <= numberOfTrees; i++) {
+        for (var i = 1; i <= params['numberOfTrees']; i++) {
           trunkLength = height/10 * rand(0.8, 1.2);
-          drawTree(delay, [width * (i/(numberOfTrees+1)), height], 16, trunkLength, 1, 1, '#333', 0);
+          drawTree(params.delay, [width * (i/(params['numberOfTrees']+1)), height], 16, trunkLength, 1, 1, '#333', 0);
         }
       }
 
@@ -75,7 +87,7 @@
             endPoint = [startPoint[0], startPoint[1] - branchLength];
             lastAngle = 90;
           } else {
-            curAngleRange = calcAngleRange(angleLimits, branches, i-1);
+            curAngleRange = calcAngleRange(defaults.angleLimits, branches, i-1);
             //console.log("angeRange before shift = " + curAngleRange);
             curAngleRange[0] += shiftAngle;
             curAngleRange[1] += shiftAngle;
