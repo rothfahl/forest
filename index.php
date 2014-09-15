@@ -15,41 +15,7 @@
         border-bottom: solid grey 1px;
       }
     </style>
-    <script type="text/javascript">
-    $(document).ready(function(){
-      $(function() {
-        $("#slider-number-of-trees").slider({
-          value: defaults.numberOfTrees,
-          min: 1,
-          max: 30,
-          slide: function( event, ui ) {
-            console.log('numberOfTrees changed');
-            clearTimers(timers);
-            context.clearRect(0,0,canvas.width,canvas.height);
-            numberOfTrees = ui.value;
-            $("#value-number-of-trees").text(numberOfTrees);
-            currentParams.numberOfTrees = numberOfTrees;
-            init();
-          }
-        });
-        $("#slider-delay").slider({
-          value: defaults.delay,
-          min: 0,
-          max: 2000,
-          step: 100,
-          slide: function( event, ui ) {
-            console.log('delay changed');
-            clearTimers(timers);
-            context.clearRect(0,0,canvas.width,canvas.height);
-            delay = ui.value;
-            $("#value-delay").text(delay);
-            currentParams.delay = delay;
-            init();
-          }
-        });
-      });
-    });
-    </script>
+    
   </head>
   <body>
     <div>
@@ -65,128 +31,50 @@
       <input type="text" id="delay" style="border:0; color:#f6931f; font-weight:bold;">
     </p>
     <div id="slider-delay"></div>
-
-    <script type="text/javascript">
-      var canvas = document.getElementById('canvas');
-      var context = canvas.getContext('2d');
-
-      var height = $(window).height() * 0.75;
-      var width = $(window).width();
-      canvas.width = width;
-      canvas.height = height;
-
-      var defaults = {
-        'numberOfTrees' : 3,
-        'branches': 2,
-        'angleLimits' : [30, 150],
-        'trunkSize' : 16,
-        'delay' : 100
-      };
-      var currentParams = defaults;
-
-      var timer;
-      var timers = [];
-      init();
-
-      function clearTimers() {
-        for(i in timers) { clearTimeout(timers[i]) };
-        timers = [];
-      }
-
-      function mergeDefaults(defaults, options) {
-        params = {};
-        for (var prop in defaults) {
-            if (prop in options) { params[prop] = options[prop]; }
-            else { params[prop] = defaults[prop]; }
-        }
-        return params; 
-      }
-
-
-      function init() {
-        params = mergeDefaults(defaults, currentParams);
-        context.clearRect(0,0,canvas.width,canvas.height)
-        for (var i = 1; i <= params['numberOfTrees']; i++) {
-          trunkLength = height/10 * rand(0.8, 1.2);
-          drawTree(params.delay, [width * (i/(params['numberOfTrees']+1)), height], params.trunkSize, trunkLength, 1, 1, '#333', 0);
-        }
-      }
-
-      function drawTree(delay, startPoint, size, branchLength, branches, depth, color, shiftAngle) {
-        if(size < 0.5) {
-          return;
-        }
-        
-        for (var i=1; i <= branches; i++) {
-          length = rand(0.8, 1.2) * branchLength;
-          //console.log("generation = " + depth, "length = "+ branchLength);
-          if (depth == 1) {
-            endPoint = [startPoint[0], startPoint[1] - branchLength];
-            lastAngle = 90;
-          } else {
-            curAngleRange = calcAngleRange(defaults.angleLimits, branches, i-1);
-            //console.log("angeRange before shift = " + curAngleRange);
-            curAngleRange[0] += shiftAngle;
-            curAngleRange[1] += shiftAngle;
-            endPoint = calcNewEndPoint(startPoint, length, curAngleRange);
-            lastAngle = endPoint[2];
-          }
-          
-          context.beginPath();
-          context.moveTo(startPoint[0], startPoint[1]);
-          context.lineTo(endPoint[0], endPoint[1]);
-          context.lineWidth = size;
-          context.lineJoin = "round";
-          context.lineCap = "round";
-          context.strokeStyle = color;
-          context.stroke();
-          
-          timer = setTimeout(
-            function(delay, endPoint, size, branchLength, n, depth, color, shiftAngle){
-              drawTree(delay, endPoint, size, branchLength, n, depth + 1, color, shiftAngle);
-            },
-            delay, 
-            delay,
-            endPoint, 
-            size / 2,
-            branchLength * 0.9,
-            params.branches,
-            depth,
-            color,
-            (lastAngle - 90) % 360
-          );
-          timers.push(timer);
-        }
-      }
-
-      function calcNewEndPoint(start, length, angleRange) {
-        angle = rand(angleRange[0], angleRange[1]); // degrees
-        angleRad = 2*Math.PI / 360 * angle; // radians
-        angleRad *= -1;
-        x = start[0] + length * Math.cos(angleRad);
-        y = start[1] + length * Math.sin(angleRad);
-        x = Math.round(x);
-        y = Math.round(y);
-
-        return [x, y, angle];
-      }
-
-      function rand(min, max) {
-        return Math.random() * (max - min) + min;
-      }
-
-      function randomColor()
-      {
-        return '#'+Math.floor(Math.random()*16777215).toString(16);
-      }
-
-      function calcAngleRange(limits, parts, curPart)
-      {
-        var partLength = (limits[1] - limits[0]) / parts;
-        var lower = limits[0] + (curPart * partLength) * rand(0.75, 1.25);
-        var upper = lower +  partLength * rand(0.75, 1.25);
-        return [lower, upper]; 
-      }
-    </script>
   </body>
+  <script type="text/javascript" src="tree.js"></script>
+  <script type="text/javascript">
+
+    var canvas = document.getElementById('canvas');
+    var height = $(window).height() * 0.75;
+    var width = $(window).width();
+    canvas.width = width;
+    canvas.height = height;
+    tree.setCanvas(canvas);
+    tree.init();
+
+    $(document).ready(function(){
+      $(function() {
+        $("#slider-number-of-trees").slider({
+          value: tree.defaults.numberOfTrees,
+          min: 1,
+          max: 30,
+          slide: function( event, ui ) {
+            console.log('numberOfTrees changed');
+            tree.clear();
+            numberOfTrees = ui.value;
+            $("#value-number-of-trees").text(numberOfTrees);
+            tree.setParam('numberOfTrees', numberOfTrees);
+            tree.init();
+          }
+        });
+        $("#slider-delay").slider({
+          value: tree.defaults.delay,
+          min: 0,
+          max: 2000,
+          step: 100,
+          slide: function( event, ui ) {
+            console.log('delay changed');
+            tree.clear();
+            delay = ui.value;
+            $("#value-delay").text(delay);
+            tree.setParam('delay', delay);
+            tree.init();
+          }
+        });
+      });
+    });
+
+
+    </script>
 </html>      
