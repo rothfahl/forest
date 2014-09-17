@@ -5,6 +5,7 @@ var tree = {
     'numberOfTrees' : 3,
     'branches': 3,
     'angleLimits' : [150, 30],
+    'angle': 30,
     'trunkSize' : 10,
     'randomness' : 0,
     'delay' : 100
@@ -32,7 +33,7 @@ var tree = {
   },
   randomnessFactor: function() {
     var randomness = this.getParam('randomness');
-    return rand(1-(randomness / 100), 1+(randomness / 100))
+    return rand(1-(randomness / 200), 1+(randomness / 200))
   },
   timers: [],
   clear: function() {
@@ -59,13 +60,16 @@ var tree = {
       );
     }
   },
-  calcAngle: function(curPart) {
-    var limits = tree.getParam('angleLimits');
-    var partLength = (limits[1] - limits[0]) / this.getParam('branches');
-    var lower = limits[0] + (curPart * partLength) ;
-    var upper = lower +  partLength;
-
-    return (lower + upper) / 2;
+  calcAngle: function(branchNr) {
+    if(branchNr == 1) {
+      return 90 + this.getParam('angle');
+    }
+    if(branchNr == 2) {
+      return 90;
+    }
+    if(branchNr == 3) {
+      return 90 - this.getParam('angle');
+    }
   },
   calcNewEndPoint: function(start, length, angle) {
     var angle = 2*Math.PI / 360 * angle; // radians
@@ -87,7 +91,7 @@ var tree = {
         endPoint = [startPoint[0], startPoint[1] - branchLength];
         angle = 90;
       } else {
-        angle = this.calcAngle(i-1);
+        angle = this.calcAngle(i);
         angle = angle * this.randomnessFactor();
         angle += shiftAngle;
         endPoint = this.calcNewEndPoint(startPoint, length, angle);

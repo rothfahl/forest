@@ -30,6 +30,10 @@
       label {
         font-family: monospace;
       }
+      .value {
+        color: rgb(235, 113, 0);
+        font-weight: bold;
+      }
     </style>
     
   </head>
@@ -44,10 +48,10 @@
       </p>
       <div id="slider-number-of-trees"></div>
       <p>
-        <label for="slider-angle-range">Allowed range of angles for branches: <span class="value" id="value-angle-range"></span></label>
-        <input type="text" id="angle-range" readonly style="border:0; color:#f6931f; font-weight:bold;">
+        <label for="slider-angle">Angle between branches: <span class="value" id="value-angle"></span></label>
+        <input type="text" id="angle" readonly style="border:0; color:#f6931f; font-weight:bold;">
       </p>
-      <div id="slider-angle-range"></div>
+      <div id="slider-angle"></div>
       <p>
         <label for="randomness">Randomness (angles, length of branches): <span class="value" id="value-randomness"></label>
         <input type="text" id="randomness" style="border:0; color:#f6931f; font-weight:bold;">
@@ -127,19 +131,18 @@
         }
       }).prev().find(".value").text(tree.defaults.randomness);
 
-      $("#slider-angle-range").slider({
-        range: true,
+      $("#slider-angle").slider({
+        value: tree.defaults.angle,
         min: 0,
-        max: 180,
-        values: [30, 150],
+        max: 90,
         slide: function( event, ui ) {
           tree.clear();
-          angleRange = ui.values;
-          $("#value-angle-range").text(angleRange[0] + "° - " + angleRange[1] + "°");
-          tree.setParam('angleLimits', angleRange);
+          angle = ui.value;
+          $("#value-angle").text(angle + "°");
+          tree.setParam('angle', angle);
           tree.init();
         }
-      }).prev().find(".value").text(tree.defaults.angleLimits[0] + "° - " + tree.defaults.angleLimits[1] + '°');
+      }).prev().find(".value").text(tree.defaults.angle + "°");
     });
     </script>
 </html>      
