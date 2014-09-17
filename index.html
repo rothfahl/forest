@@ -44,15 +44,20 @@
       </p>
       <div id="slider-number-of-trees"></div>
       <p>
-        <label for="delay">Delay (ms): <span class="value" id="value-delay"></label>
-        <input type="text" id="delay" style="border:0; color:#f6931f; font-weight:bold;">
-      </p>
-      <div id="slider-delay"></div>
-      <p>
         <label for="slider-angle-range">Allowed range of angles for branches: <span class="value" id="value-angle-range"></span></label>
         <input type="text" id="angle-range" readonly style="border:0; color:#f6931f; font-weight:bold;">
       </p>
       <div id="slider-angle-range"></div>
+      <p>
+        <label for="randomness">Randomness (angles, length of branches): <span class="value" id="value-randomness"></label>
+        <input type="text" id="randomness" style="border:0; color:#f6931f; font-weight:bold;">
+      </p>
+      <div id="slider-randomness"></div>
+      <p>
+        <label for="delay">Delay (ms): <span class="value" id="value-delay"></label>
+        <input type="text" id="delay" style="border:0; color:#f6931f; font-weight:bold;">
+      </p>
+      <div id="slider-delay"></div>
     </div>
   </body>
   <script type="text/javascript" src="tree.js"></script>
@@ -106,6 +111,21 @@
           tree.init();
         }
       }).prev().find(".value").text(tree.defaults.delay);
+
+      $("#slider-randomness").slider({
+        value: tree.defaults.randomness,
+        min: 0,
+        max: 100,
+        step: 1,
+        slide: function( event, ui ) {
+          console.log('delay changed');
+          tree.clear();
+          randomness = ui.value;
+          $("#value-randomness").text(randomness);
+          tree.setParam('randomness', randomness);
+          tree.init();
+        }
+      }).prev().find(".value").text(tree.defaults.randomness);
 
       $("#slider-angle-range").slider({
         range: true,

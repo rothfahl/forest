@@ -4,8 +4,9 @@ var tree = {
   defaults: {
     'numberOfTrees' : 3,
     'branches': 3,
-    'angleLimits' : [30, 150],
+    'angleLimits' : [150, 30],
     'trunkSize' : 10,
+    'randomness' : 0,
     'delay' : 100
   },
   currentParams: function() {
@@ -29,18 +30,23 @@ var tree = {
   getContext: function() {
     return this.context;
   },
+  randomnessFactor: function() {
+    var randomness = this.getParam('randomness');
+    return rand(1-(randomness / 100), 1+(randomness / 100))
+  },
   timers: [],
   clear: function() {
     //stop timers
     for(i in this.timers) { clearTimeout(this.timers[i]) };
     this.timers = [];  
     //clear canvas
-    this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   },
   init: function() {
-    this.context.clearRect(0,0,this.canvas.width,this.canvas.height)
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
     for (var i = 1; i <= this.getParam('numberOfTrees'); i++) {
-      trunkLength = this.canvas.height/10 * rand(0.5, 1.5);
+      //trunkLength should be at least 10
+      trunkLength = Math.max(10, this.canvas.height/10 * this.randomnessFactor());
       this.drawTree(
         this.getParam('delay'),
         [this.canvas.width * (i/(this.getParam('numberOfTrees')+1)), this.canvas.height],
@@ -53,41 +59,40 @@ var tree = {
       );
     }
   },
-  calcAngleRange: function(curPart) {
+  calcAngle: function(curPart) {
     var limits = tree.getParam('angleLimits');
     var partLength = (limits[1] - limits[0]) / this.getParam('branches');
     var lower = limits[0] + (curPart * partLength) ;
     var upper = lower +  partLength;
 
-    return [lower, upper]; 
+    return (lower + upper) / 2;
   },
-  calcNewEndPoint: function(start, length, angleRange) {
-    var angle = rand(angleRange[0], angleRange[1]); // degrees
-    var angleRad = 2*Math.PI / 360 * angle; // radians
-    angleRad *= -1;
-    x = start[0] + length * Math.cos(angleRad);
-    y = start[1] + length * Math.sin(angleRad);
+  calcNewEndPoint: function(start, length, angle) {
+    var angle = 2*Math.PI / 360 * angle; // radians
+    angle *= -1;
+    x = start[0] + length * Math.cos(angle);
+    y = start[1] + length * Math.sin(angle);
     x = Math.round(x);
     y = Math.round(y);
 
-    return [x, y, angle];
+    return [x, y];
   },
   drawTree: function(delay, startPoint, size, branchLength, branches, depth, color, shiftAngle) {
     if(size < 0.5) {
       return;
     }
     for (var i=1; i <= branches; i++) {
-      length = rand(0.75, 1.25) * branchLength;
+      length = this.randomnessFactor() * branchLength;
       if (depth == 1) {
         endPoint = [startPoint[0], startPoint[1] - branchLength];
-        lastAngle = 90;
+        angle = 90;
       } else {
-        var curAngleRange = this.calcAngleRange(i-1);
-        curAngleRange[0] += shiftAngle;
-        curAngleRange[1] += shiftAngle;
-        endPoint = this.calcNewEndPoint(startPoint, length, curAngleRange);
-        lastAngle = endPoint[2];
+        angle = this.calcAngle(i-1);
+        angle = angle * this.randomnessFactor();
+        angle += shiftAngle;
+        endPoint = this.calcNewEndPoint(startPoint, length, angle);
       }
+      console.log(angle);
       
       this.context.beginPath();
       this.context.moveTo(startPoint[0], startPoint[1]);
@@ -110,7 +115,7 @@ var tree = {
         this.getParam('branches'),
         depth,
         color,
-        (lastAngle - 90) % 360
+        (angle - 90) % 360
       );
       this.timers.push(timer);
     }
