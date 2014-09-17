@@ -86,7 +86,6 @@ var tree = {
         curAngleRange[0] += shiftAngle;
         curAngleRange[1] += shiftAngle;
         endPoint = this.calcNewEndPoint(startPoint, length, curAngleRange);
-        console.log("new endPoint", endPoint);
         lastAngle = endPoint[2];
       }
       
