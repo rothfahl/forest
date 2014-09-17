@@ -1,6 +1,7 @@
 <!DOCTYPE HTML>
 <html>
   <head>
+    <meta charset="UTF-8">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
     <script src="lib/jquery.ui.touch-punch.min.js"></script>
@@ -47,6 +48,11 @@
         <input type="text" id="delay" style="border:0; color:#f6931f; font-weight:bold;">
       </p>
       <div id="slider-delay"></div>
+      <p>
+        <label for="slider-angle-range">Allowed range of angles for branches: <span class="value" id="value-angle-range"></span></label>
+        <input type="text" id="angle-range" readonly style="border:0; color:#f6931f; font-weight:bold;">
+      </p>
+      <div id="slider-angle-range"></div>
     </div>
   </body>
   <script type="text/javascript" src="tree.js"></script>
@@ -100,6 +106,20 @@
           tree.init();
         }
       }).prev().find(".value").text(tree.defaults.delay);
+
+      $("#slider-angle-range").slider({
+        range: true,
+        min: 0,
+        max: 180,
+        values: [30, 150],
+        slide: function( event, ui ) {
+          tree.clear();
+          angleRange = ui.values;
+          $("#value-angle-range").text(angleRange[0] + "° - " + angleRange[1] + "°");
+          tree.setParam('angleLimits', angleRange);
+          tree.init();
+        }
+      }).prev().find(".value").text(tree.defaults.angleLimits[0] + "° - " + tree.defaults.angleLimits[1] + '°');
     });
     </script>
 </html>      

@@ -56,8 +56,8 @@ var tree = {
   calcAngleRange: function(curPart) {
     var limits = tree.getParam('angleLimits');
     var partLength = (limits[1] - limits[0]) / this.getParam('branches');
-    var lower = limits[0] + (curPart * partLength) * rand(0.75, 1.25);
-    var upper = lower +  partLength * rand(0.75, 1.25);
+    var lower = limits[0] + (curPart * partLength) ;
+    var upper = lower +  partLength;
 
     return [lower, upper]; 
   },
