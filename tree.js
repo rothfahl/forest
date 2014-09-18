@@ -6,8 +6,8 @@ var tree = {
     'branches': 3,
     'angleLimits' : [150, 30],
     'angle': 30,
-    'trunkSize' : 10,
-    'randomness' : 0,
+    'trunkSize' : 16,
+    'randomness' :33,
     'delay' : 100
   },
   currentParams: function() {
