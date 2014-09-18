@@ -44,7 +44,7 @@ var tree = {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   },
   init: function() {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    this.clear();
     for (var i = 1; i <= this.getParam('numberOfTrees'); i++) {
       //trunkLength should be at least 10
       trunkLength = Math.max(10, this.canvas.height/10 * this.randomnessFactor());

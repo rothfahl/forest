@@ -6,6 +6,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
     <script src="lib/jquery.ui.touch-punch.min.js"></script>
     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" />
     <style>
       body {
         height: 100vh;
@@ -34,12 +35,24 @@
         color: rgb(235, 113, 0);
         font-weight: bold;
       }
+      #refresh {
+        float: right;
+        margin: 10px 10px 0 0;
+      }
+      #refresh a {
+        text-decoration: none;
+        color: rgb(95, 95, 95);
+      }
+
     </style>
     
   </head>
   <body>
     <div id="canvas-container">
       <canvas id="canvas"></canvas>
+    </div>
+    <div id="refresh">
+      <a href="#" id="refresh-link"><i class="fa fa-refresh fa-lg"></i></a>
     </div>
     <div id="sliders">
       <p>
@@ -72,19 +85,11 @@
     tree.init();
 
     $(document).ready(function(){
-      //Run function when browser resizes
       $(window).resize(resizeCanvas);
-      function resizeCanvas() {
-        console.log("new width=", $("#canvas-container").outerWidth(), "new height=", $("#canvas-container").outerHeight());
-        canvasElement = $("#canvas");
-        canvasElement.attr('width', $("#canvas-container").width());
-        canvasElement.attr('height', $("#canvas-container").height());
-        //re-draw trees
-        tree.clear();
-        tree.init(); 
-      }
       //Initial call 
       resizeCanvas();
+
+      $("#refresh-link").on('click', function(){tree.init()});
 
       // sliders
       $("#slider-number-of-trees").slider({
@@ -93,7 +98,6 @@
         max: 20,
         slide: function( event, ui ) {
           console.log('numberOfTrees changed');
-          tree.clear();
           numberOfTrees = ui.value;
           $("#value-number-of-trees").text(numberOfTrees);
           tree.setParam('numberOfTrees', numberOfTrees);
@@ -108,7 +112,6 @@
         step: 100,
         slide: function( event, ui ) {
           console.log('delay changed');
-          tree.clear();
           delay = ui.value;
           $("#value-delay").text(delay);
           tree.setParam('delay', delay);
@@ -143,6 +146,16 @@
           tree.init();
         }
       }).prev().find(".value").text(tree.defaults.angle + "°");
+      
+      function resizeCanvas() {
+        console.log("new width=", $("#canvas-container").outerWidth(), "new height=", $("#canvas-container").outerHeight());
+        canvasElement = $("#canvas");
+        canvasElement.attr('width', $("#canvas-container").width());
+        canvasElement.attr('height', $("#canvas-container").height());
+        //re-draw trees
+        tree.clear();
+        tree.init(); 
+      }
     });
     </script>
 </html>      
