@@ -70,82 +70,59 @@
         <input type="text" id="randomness" style="border:0; color:#f6931f; font-weight:bold;">
       </p>
       <div id="slider-randomness"></div>
-      <p>
-        <label for="delay">Delay (ms): <span class="value" id="value-delay"></label>
-        <input type="text" id="delay" style="border:0; color:#f6931f; font-weight:bold;">
-      </p>
-      <div id="slider-delay"></div>
     </div>
   </body>
   <script type="text/javascript" src="tree.js"></script>
   <script type="text/javascript">
 
     var canvas = document.getElementById('canvas');
-    tree.setCanvas(canvas);
-    tree.init();
+    forest.setCanvas(canvas);
+    forest.init();
 
     $(document).ready(function(){
       $(window).resize(resizeCanvas);
       //Initial call 
       resizeCanvas();
 
-      $("#refresh-link").on('click', function(){tree.init()});
+      $("#refresh-link").on('click', function(){forest.init()});
 
       // sliders
       $("#slider-number-of-trees").slider({
-        value: tree.defaults.numberOfTrees,
+        value: forest.defaults.numberOfTrees,
         min: 1,
         max: 20,
         slide: function( event, ui ) {
-          console.log('numberOfTrees changed');
           numberOfTrees = ui.value;
           $("#value-number-of-trees").text(numberOfTrees);
-          tree.setParam('numberOfTrees', numberOfTrees);
-          tree.init();
+          forest.setParam('numberOfTrees', numberOfTrees);
+          forest.init();
         }
-      }).prev().find(".value").text(tree.defaults.numberOfTrees);
-      
-      $("#slider-delay").slider({
-        value: tree.defaults.delay,
-        min: 0,
-        max: 1000,
-        step: 100,
-        slide: function( event, ui ) {
-          console.log('delay changed');
-          delay = ui.value;
-          $("#value-delay").text(delay);
-          tree.setParam('delay', delay);
-          tree.init();
-        }
-      }).prev().find(".value").text(tree.defaults.delay);
+      }).prev().find(".value").text(forest.defaults.numberOfTrees);
 
       $("#slider-randomness").slider({
-        value: tree.defaults.randomness,
+        value: forest.defaults.randomness,
         min: 0,
         max: 100,
         step: 1,
         slide: function( event, ui ) {
-          console.log('delay changed');
-          tree.clear();
           randomness = ui.value;
           $("#value-randomness").text(randomness);
-          tree.setParam('randomness', randomness);
-          tree.init();
+          forest.setParam('randomness', randomness);
+          forest.init();
         }
-      }).prev().find(".value").text(tree.defaults.randomness);
+      }).prev().find(".value").text(forest.defaults.randomness);
 
       $("#slider-angle").slider({
-        value: tree.defaults.angle,
+        value: forest.defaults.angle,
         min: 0,
         max: 90,
         slide: function( event, ui ) {
-          tree.clear();
           angle = ui.value;
           $("#value-angle").text(angle + "°");
-          tree.setParam('angle', angle);
-          tree.init();
+          forest.setParam('angle', angle);
+          forest.init();
         }
-      }).prev().find(".value").text(tree.defaults.angle + "°");
+      }).prev().find(".value").text(forest.defaults.angle + "°");
       
       function resizeCanvas() {
         console.log("new width=", $("#canvas-container").outerWidth(), "new height=", $("#canvas-container").outerHeight());
@@ -153,8 +130,8 @@
         canvasElement.attr('width', $("#canvas-container").width());
         canvasElement.attr('height', $("#canvas-container").height());
         //re-draw trees
-        tree.clear();
-        tree.init(); 
+        forest.clear();
+        forest.init(); 
       }
     });
     </script>

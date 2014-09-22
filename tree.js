@@ -1,14 +1,104 @@
-var tree = {
-  canvas: {},
-  context: {},
-  defaults: {
+function Tree(params) {
+  this.forest = {};
+  this.defaults = {
     'numberOfTrees' : 3,
     'branches': 3,
-    'angleLimits' : [150, 30],
-    'angle': 30,
-    'trunkSize' : 16,
-    'randomness' :33,
-    'delay' : 100
+    'trunkSize' : 16
+  };
+  this.currentParams = {};
+  this.startPoint = [];
+  this.trunkLength = 0;
+  this.currentParams = function() {
+    this.currentParams = this.defaults;
+    return this.currentParams;
+  };
+  this.getParam = function(key) {
+    if(this.currentParams[key] != undefined) {
+      return this.currentParams[key];
+    } else {
+      return this.defaults[key];
+    }
+  };
+  this.setParam = function(key, value) {
+    this.currentParams[key] = value;
+  };
+  this.calcAngle = function(branchNr) {
+    if(branchNr == 1) {
+      return 90 + this.forest.getParam('angle');
+    }
+    if(branchNr == 2) {
+      return 90;
+    }
+    if(branchNr == 3) {
+      return 90 - this.forest.getParam('angle');
+    }
+  };
+  this.calcNewEndPoint = function(start, length, angle) {
+    var angle = 2*Math.PI / 360 * angle; // radians
+    angle *= -1;
+    x = start[0] + length * Math.cos(angle);
+    y = start[1] + length * Math.sin(angle);
+    x = Math.round(x);
+    y = Math.round(y);
+
+    return [x, y];
+  };
+  this.draw = function(startPoint, size, branchLength, branches, depth, color, shiftAngle) {
+    if(size < 0.5) {
+      return;
+    }
+    for (var i=1; i <= branches; i++) {
+      var angle;
+      length = this.forest.randomnessFactor() * branchLength;
+      if (depth == 1) {
+        endPoint = [startPoint[0], startPoint[1] - branchLength];
+        angle = 90;
+      } else {
+        angle = this.calcAngle(i);
+        angle = angle * this.forest.randomnessFactor();
+        angle += shiftAngle;
+        endPoint = this.calcNewEndPoint(startPoint, length, angle);
+      }
+
+      var ctx = this.forest.context;
+      ctx.beginPath();
+      ctx.moveTo(startPoint[0], startPoint[1]);
+      ctx.lineTo(endPoint[0], endPoint[1]);
+      ctx.lineWidth = size;
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.strokeStyle = color;
+      ctx.stroke();
+
+      this.draw(
+        endPoint, 
+        size * 0.6,
+        branchLength * 0.9,
+        this.getParam('branches'),
+        depth+1,
+        color,
+        (angle - 90) % 360
+      );
+    }
+  };
+};
+
+var forest = {
+  canvas: {},
+  context: {},
+  trees: [],
+  defaults: {
+    'numberOfTrees' : 3,
+    'randomness' : 33,
+    'angle': 35
+  },
+  setCanvas: function(canvas) {
+    this.canvas = canvas;
+    this.context = canvas.getContext('2d');
+  },
+  randomnessFactor: function() {
+    var randomness = this.getParam('randomness');
+    return rand(1-(randomness / 200), 1+(randomness / 200))
   },
   currentParams: function() {
     this.currentParams = this.defaults;
@@ -24,107 +114,42 @@ var tree = {
   setParam: function(key, value) {
     this.currentParams[key] = value;
   },
-  setCanvas: function(canvas) {
-    this.canvas = canvas;
-    this.context = canvas.getContext('2d');
+  addTree: function(tree) {
+    tree.forest = this;
+    this.trees.push(tree);
   },
-  getContext: function() {
-    return this.context;
-  },
-  randomnessFactor: function() {
-    var randomness = this.getParam('randomness');
-    return rand(1-(randomness / 200), 1+(randomness / 200))
-  },
-  timers: [],
   clear: function() {
-    //stop timers
-    for(i in this.timers) { clearTimeout(this.timers[i]) };
-    this.timers = [];  
+    //remove trees
+    this.trees = [];
     //clear canvas
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   },
   init: function() {
     this.clear();
     for (var i = 1; i <= this.getParam('numberOfTrees'); i++) {
-      //trunkLength should be at least 10
-      trunkLength = Math.max(10, this.canvas.height/10 * this.randomnessFactor());
-      this.drawTree(
-        this.getParam('delay'),
-        [this.canvas.width * (i/(this.getParam('numberOfTrees')+1)), this.canvas.height],
-        this.getParam('trunkSize'),
-        trunkLength,
-        1, 
-        1, 
-        '#333', 
+      var newTree = new Tree();
+      newTree.trunkLength = Math.max(10, this.canvas.height/10 * this.randomnessFactor());
+      newTree.startPoint = [this.canvas.width * (i/(this.getParam('numberOfTrees')+1)), this.canvas.height];
+      this.addTree(newTree);
+    }
+    this.draw();
+  },
+  draw: function() {
+    for(i in this.trees) {
+      this.trees[i].draw(
+        this.trees[i].startPoint,
+        this.trees[i].getParam("trunkSize"),
+        this.trees[i].trunkLength,
+        1,
+        1,
+        "#333",
         0
-      );
-    }
-  },
-  calcAngle: function(branchNr) {
-    if(branchNr == 1) {
-      return 90 + this.getParam('angle');
-    }
-    if(branchNr == 2) {
-      return 90;
-    }
-    if(branchNr == 3) {
-      return 90 - this.getParam('angle');
-    }
-  },
-  calcNewEndPoint: function(start, length, angle) {
-    var angle = 2*Math.PI / 360 * angle; // radians
-    angle *= -1;
-    x = start[0] + length * Math.cos(angle);
-    y = start[1] + length * Math.sin(angle);
-    x = Math.round(x);
-    y = Math.round(y);
-
-    return [x, y];
-  },
-  drawTree: function(delay, startPoint, size, branchLength, branches, depth, color, shiftAngle) {
-    if(size < 0.5) {
-      return;
-    }
-    for (var i=1; i <= branches; i++) {
-      length = this.randomnessFactor() * branchLength;
-      if (depth == 1) {
-        endPoint = [startPoint[0], startPoint[1] - branchLength];
-        angle = 90;
-      } else {
-        angle = this.calcAngle(i);
-        angle = angle * this.randomnessFactor();
-        angle += shiftAngle;
-        endPoint = this.calcNewEndPoint(startPoint, length, angle);
-      }
-      console.log(angle);
-      
-      this.context.beginPath();
-      this.context.moveTo(startPoint[0], startPoint[1]);
-      this.context.lineTo(endPoint[0], endPoint[1]);
-      this.context.lineWidth = size;
-      this.context.lineJoin = "round";
-      this.context.lineCap = "round";
-      this.context.strokeStyle = color;
-      this.context.stroke();
-      
-      var timer = setTimeout(
-        function(delay, endPoint, size, branchLength, n, depth, color, shiftAngle){
-          tree.drawTree(delay, endPoint, size, branchLength, n, depth + 1, color, shiftAngle);
-        },
-        delay,
-        delay,
-        endPoint, 
-        size * 0.6,
-        branchLength * 0.9,
-        this.getParam('branches'),
-        depth,
-        color,
-        (angle - 90) % 360
-      );
-      this.timers.push(timer);
-    }
+      );  
+    } 
   }
-};  
+};
+
+
 
 function rand(min, max) {
   return Math.random() * (max - min) + min;
