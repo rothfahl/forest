@@ -1,8 +1,8 @@
 function Tree(params) {
   this.forest = {};
   this.defaults = {
-    'branches': 3,
-    'trunkSize' : 16
+    branches: 3,
+    trunkSize : 16
   };
   this.currentParams = {};
   this.startPoint = [];
@@ -87,9 +87,9 @@ var forest = {
   context: {},
   trees: [],
   defaults: {
-    'numberOfTrees' : 3,
-    'randomness' : 33,
-    'angle': 35
+    numberOfTrees : 3,
+    randomness : 33,
+    angle: 35
   },
   setCanvas: function(canvas) {
     this.canvas = canvas;
