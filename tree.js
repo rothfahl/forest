@@ -1,7 +1,6 @@
 function Tree(params) {
   this.forest = {};
   this.defaults = {
-    'numberOfTrees' : 3,
     'branches': 3,
     'trunkSize' : 16
   };
