@@ -66,6 +66,11 @@
       </p>
       <div id="slider-angle"></div>
       <p>
+        <label for="slider-wind">Wind: <span class="value" id="value-wind"></span></label>
+        <input type="text" id="wind" readonly style="border:0; color:#f6931f; font-weight:bold;">
+      </p>
+      <div id="slider-wind"></div>
+      <p>
         <label for="randomness">Randomness (angles, length of branches): <span class="value" id="value-randomness"></label>
         <input type="text" id="randomness" style="border:0; color:#f6931f; font-weight:bold;">
       </p>
@@ -123,6 +128,19 @@
         }
       }).prev().find(".value").text(forest.defaults.angle + "°");
       
+      $("#slider-wind").slider({
+        value: forest.defaults.wind,
+        min: -100,
+        max: 100,
+        step: 10,
+        slide: function( event, ui ) {
+          wind = ui.value;
+          $("#value-wind").text(wind);
+          forest.setParam('wind', wind);
+          forest.init();
+        }
+      }).prev().find(".value").text(forest.defaults.wind);
+
       function resizeCanvas() {
         console.log("new width=", $("#canvas-container").outerWidth(), "new height=", $("#canvas-container").outerHeight());
         canvasElement = $("#canvas");

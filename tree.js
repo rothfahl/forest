@@ -23,10 +23,10 @@ function Tree(params) {
   };
   this.calcAngle = function(branchNr) {
     if(branchNr == 1) {
-      return 90 + this.forest.getParam('angle');
+      return 90;
     }
     if(branchNr == 2) {
-      return 90;
+      return 90 + this.forest.getParam('angle');
     }
     if(branchNr == 3) {
       return 90 - this.forest.getParam('angle');
@@ -40,24 +40,24 @@ function Tree(params) {
     x = Math.round(x);
     y = Math.round(y);
 
-    return [x, y];
+    return this.addWind([x, y]);
+  };
+  this.addWind = function(point) {
+    return [point[0] + this.forest.getParam('wind') / 3, point[1]];
   };
   this.draw = function(startPoint, size, branchLength, branches, depth, color, shiftAngle) {
-    if(size < 0.5) {
+    if(depth >= 8) {
       return;
     }
     for (var i=1; i <= branches; i++) {
       var angle;
       length = this.forest.randomnessFactor() * branchLength;
-      if (depth == 1) {
-        endPoint = [startPoint[0], startPoint[1] - branchLength];
-        angle = 90;
-      } else {
-        angle = this.calcAngle(i);
+      angle = this.calcAngle(i);
+      angle += shiftAngle;
+      if (1 < depth) {
         angle = angle * this.forest.randomnessFactor();
-        angle += shiftAngle;
-        endPoint = this.calcNewEndPoint(startPoint, length, angle);
       }
+      endPoint = this.calcNewEndPoint(startPoint, length, angle);
 
       var ctx = this.forest.context;
       ctx.beginPath();
@@ -71,7 +71,7 @@ function Tree(params) {
 
       this.draw(
         endPoint, 
-        size * 0.6,
+        size * 0.5,
         branchLength * 0.9,
         this.getParam('branches'),
         depth+1,
@@ -88,8 +88,9 @@ var forest = {
   trees: [],
   defaults: {
     numberOfTrees : 3,
-    randomness : 33,
-    angle: 35
+    randomness : 0,
+    angle: 30,
+    wind: 0,
   },
   setCanvas: function(canvas) {
     this.canvas = canvas;
